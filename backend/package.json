@@ -14,7 +14,8 @@
     "db:start": "node scripts/manage-db.js start",
     "db:stop": "node scripts/manage-db.js stop",
     "db:restart": "node scripts/manage-db.js restart",
-    "db:status": "node scripts/manage-db.js status"
+    "db:status": "node scripts/manage-db.js status",
+    "db:sample": "node prisma/sample-data.js"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",

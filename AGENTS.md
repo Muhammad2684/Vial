@@ -68,9 +68,15 @@ npm install
 npm run db:init
 npm run db:start
 npm run prisma:push
-node prisma/seed.js
+node prisma/seed.js         # Seeds 1100 MasterMedicineList entries
+npm run db:sample           # Optional: adds sample products, suppliers, batches, sales, customers
 npm run dev
 ```
+
+## Seeding
+- `prisma/seed.js` — seeds the `MasterMedicineList` (1100 entries). Safe to re-run (skips if >0 entries).
+- `prisma/sample-data.js` — creates 13 products with batches, 3 suppliers, 2 purchase orders, 3 customers, 3 sales for demo/testing.
+- `npm run db:sample` — shortcut to run sample-data.js.
 
 ## Conventions
 - JavaScript (no TypeScript)
