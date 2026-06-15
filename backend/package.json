@@ -1,0 +1,30 @@
+{
+  "name": "vial2-backend",
+  "version": "1.0.0",
+  "description": "Pharmacy POS, Inventory & Ledger Backend",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "prisma:generate": "npx prisma generate",
+    "prisma:push": "npx prisma db push",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:studio": "npx prisma studio",
+    "db:init": "node scripts/manage-db.js init",
+    "db:start": "node scripts/manage-db.js start",
+    "db:stop": "node scripts/manage-db.js stop",
+    "db:restart": "node scripts/manage-db.js restart",
+    "db:status": "node scripts/manage-db.js status"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "prisma": "^6.1.0"
+  }
+}

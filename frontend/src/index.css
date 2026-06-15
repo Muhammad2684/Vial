@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* High-contrast, fast-loading defaults */
+html { font-size: 15px; }
+body { min-height: 100vh; }
+
+/* Keyboard focus ring */
+*:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Scrollbar for cart table */
+.cart-scroll::-webkit-scrollbar { height: 6px; }
+.cart-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }

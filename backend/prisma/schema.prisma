@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id               String   @id @default(uuid())
+  brandName        String   @map("brand_name")
+  genericName      String?  @map("generic_name")
+  manufacturer     String?
+  isControlled     Boolean  @default(false) @map("is_controlled")
+  barcode          String?  @unique
+  lowStockThreshold Int?    @default(10) @map("low_stock_threshold")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  inventoryBatches InventoryBatch[]
+  saleItems        SaleItem[]
+  purchaseItems    PurchaseOrderItem[]
+  stockAdjustments StockAdjustment[]
+
+  @@map("products")
+}
+
+model InventoryBatch {
+  id                   String   @id @default(uuid())
+  productId            String   @map("product_id")
+  batchNumber          String   @map("batch_number")
+  expiryDate           DateTime @map("expiry_date")
+  purchasePrice        Float    @map("purchase_price")
+  retailPrice          Float    @map("retail_price")
+  boxQuantity          Int      @map("box_quantity")
+  looseConversionFactor Int     @map("loose_conversion_factor")
+  quantityInBoxes      Int      @default(0) @map("quantity_in_boxes")
+  quantityInLoose      Int      @default(0) @map("quantity_in_loose")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  saleItems  SaleItem[]
+
+  @@index([productId])
+  @@index([expiryDate])
+  @@map("inventory_batches")
+}
+
+model Supplier {
+  id              String   @id @default(uuid())
+  name            String
+  contactPerson   String?  @map("contact_person")
+  phone           String?
+  address         String?
+  totalBalance    Float    @default(0) @map("total_balance")
+  paidAmount      Float    @default(0) @map("paid_amount")
+  remainingCredit Float    @default(0) @map("remaining_credit")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id            String   @id @default(uuid())
+  supplierId    String   @map("supplier_id")
+  totalAmount   Float    @map("total_amount")
+  paidAmount    Float    @default(0) @map("paid_amount")
+  remainingAmount Float  @default(0) @map("remaining_amount")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  supplier Supplier          @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  items    PurchaseOrderItem[]
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String   @id @default(uuid())
+  purchaseOrderId String   @map("purchase_order_id")
+  productId       String   @map("product_id")
+  batchNumber     String   @map("batch_number")
+  expiryDate      DateTime @map("expiry_date")
+  quantity        Int
+  unitPrice       Float    @map("unit_price")
+  subtotal        Float
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product       Product       @relation(fields: [productId], references: [id])
+
+  @@map("purchase_order_items")
+}
+
+model CustomerKhata {
+  id               String   @id @default(uuid())
+  fullName         String   @map("full_name")
+  phone            String?
+  address          String?
+  totalCredit      Float    @default(0) @map("total_credit")
+  paidAmount       Float    @default(0) @map("paid_amount")
+  remainingBalance Float    @default(0) @map("remaining_balance")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  transactions CustomerKhataTransaction[]
+  sales        Sale[]
+
+  @@map("customer_khata")
+}
+
+model CustomerKhataTransaction {
+  id              String   @id @default(uuid())
+  customerKhataId String   @map("customer_khata_id")
+  saleId          String?  @map("sale_id")
+  amount          Float
+  type            String
+  description     String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  customer CustomerKhata @relation(fields: [customerKhataId], references: [id], onDelete: Cascade)
+  sale     Sale?         @relation(fields: [saleId], references: [id])
+
+  @@map("customer_khata_transactions")
+}
+
+model Sale {
+  id              String   @id @default(uuid())
+  totalAmount     Float    @map("total_amount")
+  discountPercent  Float?  @map("discount_percent")
+  discountAmount  Float    @default(0) @map("discount_amount")
+  netPayable      Float    @map("net_payable")
+  paymentMethod   String   @map("payment_method")
+  fbrInvoiceRef   String?  @map("fbr_invoice_ref")
+  fbrQrPayload    String?  @map("fbr_qr_payload")
+  customerId      String?  @map("customer_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  items             SaleItem[]
+  customer          CustomerKhata?     @relation(fields: [customerId], references: [id])
+  khataTransactions CustomerKhataTransaction[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id               String @id @default(uuid())
+  saleId           String @map("sale_id")
+  productId        String @map("product_id")
+  inventoryBatchId String @map("inventory_batch_id")
+  quantity         Int
+  unitType         String @map("unit_type")
+  unitPrice        Float  @map("unit_price")
+  subtotal         Float
+
+  sale            Sale            @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product         Product         @relation(fields: [productId], references: [id])
+  inventoryBatch  InventoryBatch  @relation(fields: [inventoryBatchId], references: [id])
+
+  @@map("sale_items")
+}
+
+model MasterMedicineList {
+  id          String   @id @default(uuid())
+  brandName   String   @map("brand_name")
+  genericName String?  @map("generic_name")
+  companyName String?  @map("company_name")
+
+  @@index([brandName])
+  @@map("master_medicine_list")
+}
+
+model StockAdjustment {
+  id          String   @id @default(uuid())
+  productId   String   @map("product_id")
+  batchId     String?  @map("batch_id")
+  type        String
+  quantity    Int
+  unitType    String   @map("unit_type")
+  reason      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("stock_adjustments")
+}
